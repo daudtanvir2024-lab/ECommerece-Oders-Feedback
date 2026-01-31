@@ -1,0 +1,1584 @@
+{
+  "name": "eCommerce Order/Feedback",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ecommerce-data",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "29ba99df-7799-48ed-a6dc-0525d2a59cb1",
+      "name": "Webhook - Main Entry",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -2624,
+        -1312
+      ],
+      "webhookId": "ecommerce-webhook-id"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "13KclbP1xhBhhBKtjrB-4Y23XfUibDyXMmnhHee78wmg",
+          "mode": "list",
+          "cachedResultName": "Elite Stock Ledger",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13KclbP1xhBhhBKtjrB-4Y23XfUibDyXMmnhHee78wmg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13KclbP1xhBhhBKtjrB-4Y23XfUibDyXMmnhHee78wmg/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Product Name",
+              "lookupValue": "={{ $json.body.product }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6be52cef-503f-4627-a3c6-0a889f017a3e",
+      "name": "Lookup Stock Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -1984,
+        -1536
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "a9H6tBXTu3DeypO2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json[' Shelf Status'] }}",
+              "operation": "larger"
+            }
+          ]
+        }
+      },
+      "id": "6e228a70-bae9-4bff-b425-f7b0a4fc0569",
+      "name": "IF Out of Stock",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -1728,
+        -1536
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n  // Sr# pick kar rahe hain, agar na mile to 00\n  const serialNumber = item.json[\"Sr#\"] || \"00\";\n  \n  // Unique Order ID bana rahe hain (ES + random number + Sr#)\n  item.json.myNewField = \"ES540\" + serialNumber;\n}\n\nreturn $input.all();"
+      },
+      "id": "9f6809c5-a599-49cd-bbc2-b9fb87e9fa0d",
+      "name": "Generate Order ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1472,
+        -1648
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1f9__3Qq41-3P9w9TVHqG3_6OJRdVwrSt15Y3oLkD9x4",
+          "mode": "list",
+          "cachedResultName": "Elite Feedback Ledger",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f9__3Qq41-3P9w9TVHqG3_6OJRdVwrSt15Y3oLkD9x4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1f9__3Qq41-3P9w9TVHqG3_6OJRdVwrSt15Y3oLkD9x4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Experience Voice": "={{ $('Webhook - Main Entry').item.json.body.feedback }}",
+            "Customer's Name": "={{ $json.body.name }}",
+            "Email": "={{ $json.body.email }}",
+            "Product ": "={{ $json.body.product }}",
+            "Category": "={{ $json.body.category }}",
+            "Oder ID": "={{ $json.body.order_id }}",
+            "Oder Date": "={{ $json.body.order_date }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Customer's Name",
+              "displayName": "Customer's Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product ",
+              "displayName": "Product ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Oder ID",
+              "displayName": "Oder ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Oder Date",
+              "displayName": "Oder Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Experience Voice",
+              "displayName": "Experience Voice",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "headers",
+              "displayName": "headers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "params",
+              "displayName": "params",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "body",
+              "displayName": "body",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "webhookUrl",
+              "displayName": "webhookUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "executionMode",
+              "displayName": "executionMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "fd9f4bc9-af85-40f3-b8fc-fab3cae39d04",
+      "name": "Add to Feedback Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        -2000,
+        -1168
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "a9H6tBXTu3DeypO2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Sports",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "f6c22774-3c13-4efb-9b6f-9c41419c8bdf"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "08fdd09f-a526-4ae4-97e1-b5fe6c3081ac",
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Shoes",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "4d10966d-3b38-4cb7-ba17-a9689a8b0e44",
+                    "leftValue": "={{ $json.Category }}",
+                    "rightValue": "Garments",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1040,
+        -1664
+      ],
+      "id": "917ec727-02ca-428d-9055-754b8abe3640",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ZiBoN9oWpPHabl2qaR4X8uYjprRrKoO2dsCjH4H-hcI",
+          "mode": "list",
+          "cachedResultName": "Online Oders Sports",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZiBoN9oWpPHabl2qaR4X8uYjprRrKoO2dsCjH4H-hcI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "MT Sports",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZiBoN9oWpPHabl2qaR4X8uYjprRrKoO2dsCjH4H-hcI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Product": "={{ $('Webhook - Main Entry').item.json.body.product }}",
+            " Shipping Adress": "={{ $('Webhook - Main Entry').item.json.body.address }}",
+            "Name": "={{ $('Webhook - Main Entry').item.json.body.name }}",
+            "Quantity": "={{ $('Webhook - Main Entry').item.json.body.quantity }}",
+            "Price": "={{ $('Webhook - Main Entry').item.json.body.price }}",
+            "Email": "={{ $('Webhook - Main Entry').item.json.body.email }}",
+            "Whatsapp No.": "={{ $('Webhook - Main Entry').item.json.body.whatsapp }}",
+            "Oder ID": "={{ $('Generate Order ID').item.json.myNewField }}",
+            "Category": "={{ $('Webhook - Main Entry').item.json.body.category }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Whatsapp No.",
+              "displayName": "Whatsapp No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product",
+              "displayName": "Product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Price",
+              "displayName": "Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " Shipping Adress",
+              "displayName": " Shipping Adress",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Oder ID",
+              "displayName": "Oder ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -816,
+        -1856
+      ],
+      "id": "553e5964-b61d-44b8-bf8d-172445b5c6e3",
+      "name": "Sports",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "a9H6tBXTu3DeypO2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1jxfjiwq1_lTwJfjDxOqr-7tdFOaSNSe6RvP1xMLNZEA",
+          "mode": "list",
+          "cachedResultName": "Online Oder Shoes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jxfjiwq1_lTwJfjDxOqr-7tdFOaSNSe6RvP1xMLNZEA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Shoes",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1jxfjiwq1_lTwJfjDxOqr-7tdFOaSNSe6RvP1xMLNZEA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Webhook - Main Entry').item.json.body.email }}",
+            "Product": "={{ $('Webhook - Main Entry').item.json.body.product }}",
+            "Quantity": "={{ $('Webhook - Main Entry').item.json.body.quantity }}",
+            "Whatsapp No.": "={{ $('Webhook - Main Entry').item.json.body.whatsapp }}",
+            "Name": "={{ $('Webhook - Main Entry').item.json.body.name }}",
+            " Shipping Adress": "={{ $('Webhook - Main Entry').item.json.body.address }}",
+            "Price": "={{ $('Webhook - Main Entry').item.json.body.price }}",
+            "Category": "={{ $('Webhook - Main Entry').item.json.body.category }}",
+            "Oder ID": "={{ $('Generate Order ID').item.json.myNewField }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Whatsapp No.",
+              "displayName": "Whatsapp No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product",
+              "displayName": "Product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Price",
+              "displayName": "Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " Shipping Adress",
+              "displayName": " Shipping Adress",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Oder ID",
+              "displayName": "Oder ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -816,
+        -1680
+      ],
+      "id": "1f525322-bbc6-4eb1-ab6d-a6addda6ddf0",
+      "name": "Shoes",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "a9H6tBXTu3DeypO2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1ZGm7fWUugUMjYkvXgoPA79zWEIyZmI0uMGB9dxmOc88",
+          "mode": "list",
+          "cachedResultName": "All Oders",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZGm7fWUugUMjYkvXgoPA79zWEIyZmI0uMGB9dxmOc88/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "All",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1ZGm7fWUugUMjYkvXgoPA79zWEIyZmI0uMGB9dxmOc88/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Webhook - Main Entry').item.json.body.name }}",
+            "Email": "={{ $('Webhook - Main Entry').item.json.body.email }}",
+            "Product": "={{ $('Webhook - Main Entry').item.json.body.product }}",
+            "Quantity": "={{ $('Webhook - Main Entry').item.json.body.quantity }}",
+            "Whatsapp No.": "={{ $('Webhook - Main Entry').item.json.body.whatsapp }}",
+            "Submit At": "={{ $now }}",
+            "Oder ID": "={{ $json.myNewField }}",
+            "Category": "={{ $('Webhook - Main Entry').item.json.body.category }}",
+            "Price": "={{ $('Webhook - Main Entry').item.json.body.price }}",
+            " Shipping Adress": "={{ $('Webhook - Main Entry').item.json.body.address }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Whatsapp No.",
+              "displayName": "Whatsapp No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product",
+              "displayName": "Product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price",
+              "displayName": "Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " Shipping Adress",
+              "displayName": " Shipping Adress",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Submit At",
+              "displayName": "Submit At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Oder ID",
+              "displayName": "Oder ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1264,
+        -1648
+      ],
+      "id": "74b9317e-6984-44be-b33c-47af9f4fae5b",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "a9H6tBXTu3DeypO2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-4-maverick-17b-128e-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -1456
+      ],
+      "id": "2c770c63-b6dc-421f-b963-49a25cc558fd",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "63R9DvwR9gUY6dP9",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "eaa2ebf1-2832-41dc-93a1-e4ecc12f3420",
+              "leftValue": "={{ $json.body.type }}",
+              "rightValue": "shop",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -2384,
+        -1312
+      ],
+      "id": "5adfd294-e546-4d6e-ba2b-040bc7c100c8",
+      "name": "Oders/Feedback"
+    },
+    {
+      "parameters": {
+        "model": "groq/compound-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        -976
+      ],
+      "id": "f3cb6984-d814-4895-aa95-1a3ac562b260",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "63R9DvwR9gUY6dP9",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "13CD23-6kKYvuvolyZTdOpZFRX9_r6EBT-UqmUt5hEaw",
+          "mode": "list",
+          "cachedResultName": "Clothes ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13CD23-6kKYvuvolyZTdOpZFRX9_r6EBT-UqmUt5hEaw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Shirts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/13CD23-6kKYvuvolyZTdOpZFRX9_r6EBT-UqmUt5hEaw/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Price": "={{ $('Webhook - Main Entry').item.json.body.price }}",
+            "Name": "={{ $('Webhook - Main Entry').item.json.body.name }}",
+            "Email": "={{ $('Webhook - Main Entry').item.json.body.email }}",
+            "Oder ID": "={{ $('Generate Order ID').item.json.myNewField }}",
+            " Shipping Adress": "={{ $('Webhook - Main Entry').item.json.body.address }}",
+            "Quantity": "={{ $('Webhook - Main Entry').item.json.body.quantity }}",
+            "Category": "={{ $('Webhook - Main Entry').item.json.body.category }}",
+            "Product": "={{ $('Webhook - Main Entry').item.json.body.product }}",
+            "Whatsapp No.": "={{ $('Webhook - Main Entry').item.json.body.whatsapp }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Whatsapp No.",
+              "displayName": "Whatsapp No.",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product",
+              "displayName": "Product",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Price",
+              "displayName": "Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Quantity",
+              "displayName": "Quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Payment Method ",
+              "displayName": "Payment Method ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": " Shipping Adress",
+              "displayName": " Shipping Adress",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Oder ID",
+              "displayName": "Oder ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -816,
+        -1504
+      ],
+      "id": "88c90b84-e1f7-464d-96aa-0d90d524ab3f",
+      "name": "Garments",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "a9H6tBXTu3DeypO2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook - Main Entry').item.json.body.email }}",
+        "subject": "=Urgent Update: Regarding your order.",
+        "message": "=Dear{{ $('Webhook - Main Entry').item.json.body.name }} , we sincerely apologize for the inconvenience. Due to unprecedented demand, the {{ $('Webhook - Main Entry').item.json.body.product }} is currently unavailable. Rest assured, we will prioritize notifying you as soon as it is back in stock.\nBest Regards, Elite Team.\"",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -448,
+        -1248
+      ],
+      "id": "6f2c1b67-24ef-4ad0-a580-0d144434a8c1",
+      "name": "To customer",
+      "webhookId": "11cb10e0-0cf8-415d-b04a-c4f893daffb7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "IBcsxQrCBn9inE4h",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "groq/compound-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -1792,
+        -992
+      ],
+      "id": "f5fef3a0-6f8e-48c7-8df9-e5d00b242bd0",
+      "name": "Groq Chat Model2",
+      "credentials": {
+        "groqApi": {
+          "id": "63R9DvwR9gUY6dP9",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "837959969411409",
+        "recipientPhoneNumber": "=923416698838",
+        "textBody": "=AslamoAlikum.Dear {{ $('Webhook - Main Entry').item.json.body.name }},Your Oder for {{ $('Webhook - Main Entry').item.json.body.product }} has been recieved.Your parcel will be delivered on your given adress {{ $('Webhook - Main Entry').item.json.body.address }}in 4-5 working days  .Thanks for your trust.\nRegards: \"SHOP VERSE\"",
+        "additionalFields": {
+          "previewUrl": false
+        }
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [
+        -240,
+        -1552
+      ],
+      "id": "b5f4f5df-6663-4f37-90ab-afa69cb89488",
+      "name": "Send message",
+      "webhookId": "ea876c52-c608-4c2f-9137-8867cbf47d7c",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "mdXo7zUUjyIwfotw",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ABPHDSUS3",
+          "mode": "list",
+          "cachedResultName": "stock-reminder"
+        },
+        "text": "=The Product {{ $('Webhook - Main Entry').item.json.body.product }} of {{ $('Webhook - Main Entry').item.json.body.category }} category is out of Stock.Please take necessary action to restock it as soon as possible. Inventery.",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -448,
+        -1024
+      ],
+      "id": "add47f47-491c-4911-b68f-2740e91176c0",
+      "name": "Send a message",
+      "webhookId": "034d0f00-dfd6-49dc-8ca9-7034d5ed5e44",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "LiYgHC728cEJINP2",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Hi.. acting as e Commerce expert you have to send apology message to customer in professional way for Out of stock product via e-mail.\nAlso you have to reminder alert to to team for necessary action.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -864,
+        -1168
+      ],
+      "id": "2e63b49e-78e0-4311-afc0-10cc8a1130a4",
+      "name": "AI Agent-Send Applogy for Out of Stock"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Hi dear you are i.t and computer  expert .You have to send  an email  and message to whatsapp number to the person who odered us from form.Please get the email adress and whatsapp number  from form data given by customer.",
+        "options": {
+          "systemMessage": "=You are a professional Order Confirmation Assistant for an online store.\n\nYour role:\n- An order comes from a website form.\n- The order is already routed to the correct department (Shoes, Sports, or Trouser).\n- Now you must send:\n  1) A WhatsApp confirmation message to the given WhatsApp number\n  2) A confirmation email to the given email address\n\nRules:\n- Always be polite, professional, and friendly\n- Use English + Urdu mix\n- Do NOT ask questions\n- Do NOT mention internal systems or departments\n- Confirm that the order has been received successfully\n- Clearly mention delivery time: 4–5 days\n- Include product name and quantity\n- End message politely\n\nStart all messages with:\n\"Aslam-o-Alaikum {customer_name}\"\n\nData you will receive:\n- Customer Name : {{ $('Webhook - Main Entry').item.json.body.name }}\n- Product Name: {{ $('Webhook - Main Entry').item.json.body.product }}\n- Quantity:{{ $('Webhook - Main Entry').item.json.body.quantity }} \nOder ID:{{ $('Generate Order ID').item.json.myNewField }}\n- WhatsApp Number:{{ $('Webhook - Main Entry').item.json.body.whatsapp }}\n- Email Address:{{ $('Webhook - Main Entry').item.json.body.email }} \n- Adress:{{ $('Webhook - Main Entry').item.json.body.address }} \n\nOutput format:\nReturn TWO separate messages clearly labeled:\n\nWHATSAPP_MESSAGE:\n<short and friendly confirmation message>\n\nEMAIL_MESSAGE:\n<slightly more detailed confirmation email>\n\nDo not include anything else in the response.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        -576,
+        -1648
+      ],
+      "id": "021d30fc-0867-441b-b64e-74fdcdde356a",
+      "name": "AI Agent-Oder Confirmation",
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 1408,
+        "width": 2944
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2720,
+        -2112
+      ],
+      "typeVersion": 1,
+      "id": "34b89031-0820-4780-b576-61c22c354a6c",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook - Main Entry').item.json.body.feedback }}",
+        "options": {
+          "systemMessage": "\"You are the Customer Success Manager at Elite Store. Analyze the customer's feedback provided in the 'feedback' field.\n\nIf the feedback is Positive (happy, good quality, fast delivery), write a warm thank-you message.\n\nIf the feedback is Negative (broken item, late delivery, bad quality), write a professional apology and tell them our team will contact them on WhatsApp within 2 hours.\n\nOutput strictly in this JSON format: { \"sentiment\": \"Positive or Negative\", \"customer_msg\": \"The reply for the customer\", \"team_msg\": \"Short alert for the team about this feedback\" }\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -1792,
+        -1168
+      ],
+      "id": "5875e95a-8eb2-4543-8911-868d1c836458",
+      "name": "AI Agent-Reply To Customer & Alert to Team"
+    },
+    {
+      "parameters": {
+        "content": "\n\n### Get Oders (Stock Available)\n### Genrate Oder ID,\n### Save in Google Sheets\n### Send to Relavent Department\n### Send Oder Confirmation to Customer",
+        "height": 560,
+        "width": 1488,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1552,
+        -1888
+      ],
+      "typeVersion": 1,
+      "id": "9ec15d7c-83c2-42d3-9590-cc812893ba02",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Send Applogy to Customer (Product Out of Stock).\n## Send Reminder Alert to team for Restock.",
+        "height": 480,
+        "width": 816,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1008,
+        -1328
+      ],
+      "typeVersion": 1,
+      "id": "c11606d4-9bac-4a5c-ba28-9fffd6c5e584",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Save All Feedbacks.\n## Reply to Customer for +ve/-ve Feedback.\n## Send Alert to Team for Follow Back.",
+        "height": 480,
+        "width": 960,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2096,
+        -1328
+      ],
+      "typeVersion": 1,
+      "id": "01d96fcd-d9e8-4880-a471-631e1b322539",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Get Oder/Feedback From e commercre website.\n## Identify Submission Type (Oder/Feedback).\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n90",
+        "height": 464,
+        "width": 576,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2672,
+        -1536
+      ],
+      "typeVersion": 1,
+      "id": "f68c9313-d7d5-42fe-b2d4-ee02df41c195",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Oders Type \n## Varify Inventory Availability.\n## (Product Available/Out of Stock )",
+        "height": 368,
+        "width": 544,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2096,
+        -1696
+      ],
+      "typeVersion": 1,
+      "id": "fbc44518-2c29-4021-8ad7-1db475ce9400",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook - Main Entry').item.json.body.email }}",
+        "subject": "Oder Confirmation",
+        "message": "=Aslamoalikum.Dear {{ $('Webhook - Main Entry').item.json.body.name }}.Your oder for {{ $('Webhook - Main Entry').item.json.body.product }} with Oder ID {{ $('Generate Order ID').item.json.myNewField }} has recieved.Your product  will be delivered within 3-4 working days at {{ $('Webhook - Main Entry').item.json.body.address }} Thanks for your trust.\nREGARDS: ELITE STORE TEAM.",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -256,
+        -1824
+      ],
+      "id": "71c3364d-e951-4649-be7f-a1802cf99506",
+      "name": "Confirmatiom Email",
+      "webhookId": "ff05cd57-00cd-4394-aa3e-a9d85c651c21",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "IBcsxQrCBn9inE4h",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook - Main Entry').item.json.body.email }}",
+        "subject": "=Feedback Received - Elite Store",
+        "message": "={{ JSON.parse($node[\"AI Agent-Reply To Customer & Alert to Team\"].json.output).customer_msg }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -1392,
+        -1280
+      ],
+      "id": "02743651-6c65-41cf-9008-b7d1a924393c",
+      "name": "Reply Feedback",
+      "webhookId": "11cb10e0-0cf8-415d-b04a-c4f893daffb7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "IBcsxQrCBn9inE4h",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AC1H8SXB7",
+          "mode": "list",
+          "cachedResultName": "feedback-alert"
+        },
+        "text": "Hi.feedback from cusomer has revieved.Please review it follow up with customer.",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        -1392,
+        -1024
+      ],
+      "id": "26d18d95-a741-4ccd-9fa3-20af147df9c4",
+      "name": "Team Alert",
+      "webhookId": "034d0f00-dfd6-49dc-8ca9-7034d5ed5e44",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "LiYgHC728cEJINP2",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Main Entry": {
+      "main": [
+        [
+          {
+            "node": "Oders/Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Stock Status": {
+      "main": [
+        [
+          {
+            "node": "IF Out of Stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Out of Stock": {
+      "main": [
+        [
+          {
+            "node": "Generate Order ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent-Send Applogy for Out of Stock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Order ID": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add to Feedback Sheet": {
+      "main": [
+        [
+          {
+            "node": "AI Agent-Reply To Customer & Alert to Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Sports",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Shoes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Garments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sports": {
+      "main": [
+        [
+          {
+            "node": "AI Agent-Oder Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shoes": {
+      "main": [
+        [
+          {
+            "node": "AI Agent-Oder Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent-Oder Confirmation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Oders/Feedback": {
+      "main": [
+        [
+          {
+            "node": "Lookup Stock Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add to Feedback Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent-Send Applogy for Out of Stock",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Garments": {
+      "main": [
+        [
+          {
+            "node": "AI Agent-Oder Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent-Reply To Customer & Alert to Team",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent-Send Applogy for Out of Stock": {
+      "main": [
+        [
+          {
+            "node": "To customer",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent-Oder Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Confirmatiom Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent-Reply To Customer & Alert to Team": {
+      "main": [
+        [
+          {
+            "node": "Reply Feedback",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Team Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmatiom Email": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "2a4a384c-2fe5-4951-842f-7191531d5e99",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9fc2dbbc90a6c68a83ec44c32e95a971ddc9b9057e9a87e24759e1489d8c0c34"
+  },
+  "id": "kzvfQj4opB80qLqqYOmTk",
+  "tags": []
+}
